@@ -3,7 +3,7 @@ import random
 class TreeNode:
 
     def __init__(self, a_data, is_red:bool = True) -> None:
-        self.data  = a_data
+        self.data  = [a_data]
         self.left  = None
         self.right = None
         self.red   = is_red
@@ -69,6 +69,11 @@ class TreeNode:
         '''Sets the node's parity value'''
         self.red   = not val
 
+    # Display functions
+    def displayColor(self):
+        '''prints the color of the current node'''
+        if self.red: return ("🔴") ;
+        else: return ("⚫")
 
 class Tree:
 
@@ -95,24 +100,15 @@ class Tree:
         '''
         #if root is empty add the new node as the root.
         if not self.root : self.root = TreeNode(in_data, False); return
-        skip = False
-        out = self._insert_recursive_(in_data, self.root, None ,skip)
-        if out : self.root = out
+        out = self.__insert__(in_data, self.root, None)
+        if out:
+            if out.isRed() : out.setBlack()
+            root = out
 
-    def rotateLeft(self, root) -> TreeNode:
-        '''## Rotate Left
-        Rotates the given node left, returning the new root'''
-        return self._rotate_(root, False)
-
-    def rotateRight(self, root)-> TreeNode:
-        '''## RotateRight
-        Rotates the given node right, returning the new root'''
-        return self._rotate_(root, True)
-
-    def _rotate_(self, root:TreeNode, side:bool = True) -> TreeNode:
+    def __rotate__(self, root:TreeNode, side:bool) -> TreeNode:
         '''
         ## Rotate
-        Helper function for rotateLeft and rotateRight
+        Helper function for insertion/removal
         ### Params:
         * root: root of the tree to rotate
         * side: controls the direction of rotation: True=>right
@@ -129,7 +125,7 @@ class Tree:
 
         return child
 
-    def _insert_recursive_(self, in_data, curr:TreeNode, parent:TreeNode, skip:bool) -> TreeNode:
+    def __insert__(self, in_data, curr:TreeNode, parent:TreeNode) -> TreeNode:
         '''
         ## Insert recursive
         helper function for insert function
@@ -137,91 +133,147 @@ class Tree:
         * in_data - data to add to new node
         * curr - reference to current node
         * parent - parent of current node
-        * skip - set to True when this node has been swapped
         ### Return:
-        * None if the tree is good as-is
+        * None if the insert value is already in the tree.
         * Otherwise, a reference to curr. 
         '''
         child:TreeNode  # populated by recursive call
         uncle:TreeNode  # only used in some cases
-        uncleSide:bool # stores uncle direction - True => Right
-        childSide:bool  # stores call direction - True => Right
+        uncleSide:bool  # stores uncle direction - True => Right
+        childSide:bool  # stores call direction  - True => Right
 
         # if this is called on a leaf, return a new node
         if curr == None:
             return TreeNode(in_data)
 
         # Compare current node's value to insert value
-        curr_data = curr.getData()
-        # if our value is already in the tree, return false. 
-        if curr_data == in_data: return None
+        curr_data = curr.getData()[0]
 
+        # if our value is already in the tree, return None
+        if curr_data == in_data:
+            try: 
+                curr.getData().append(in_data)
+            except:
+                pass
+
+            return None
+
+        # recursive call
         childSide = (curr_data < in_data)
-
         next = curr.getSide(childSide)
 
-        child = self._insert_recursive_(in_data, next, curr, skip)
-
-        # passes child instead, used when flipped lower in tree to pass new parent's reference to new grandparent
-        if next and (next.getSide(True) == curr or next.getSide(False) == curr): return next
-        '''if skip:
-            skip = False
-            return child''' 
+        child = self.__insert__(in_data, next, curr)
 
         # if function call returns None, we have nothing to do.
-        if child == None: return None
+        if child == None:
+            return None
 
+        # if was flipped in the previous step, child is now your daddy, return him to gramps.
+        if (child.getSide(True) == curr or child.getSide(False) == curr):
+            return child
+        
         # attach the new Node. 
-        curr.setSide(child,childSide)
-        
-        # if current is red and the root, make curr black
-        if parent == None and curr.isRed:
-            curr.setBlack()
-            return curr
+        else: curr.setSide(child, childSide)
 
-        #if the current node is black and its child is red, we're done
-        if child.isRed() and curr.isBlack():
-            return curr
-
-        # in other cases, we will need to make uncle comparison
-        uncleSide = (parent.getData() > curr.getData()) 
-
-        uncle = parent.getSide(uncleSide)
-
-        if curr.isRed() and (uncle != None and uncle.isRed()):
-            curr.setBlack()
-            uncle.setBlack()
-            parent.setRed()
+        if parent == None:
             return curr
         
-        if curr.isRed() and (uncle == None or uncle.isBlack()):
-            # check which case we have to use
-            if (uncleSide == childSide): curr = self._rotate_(curr, not childSide)
+        if curr.isRed():
+            
+            #if the current node is black and its child is red, we're done
+            if child.isBlack():
+                return curr
 
+            # in other cases, we will need to make uncle comparison
+            uncleSide = (parent.getData()[0] > curr.getData()[0]) 
+            uncle = parent.getSide(uncleSide)
 
-            parent.setRed()
-            curr.setBlack()
-            temp = self._rotate_(parent, uncleSide)
-            skip = True
-            return temp
+            if (uncle != None and uncle.isRed()):
+                curr.setBlack()
+                uncle.setBlack()
+                parent.setRed()
+                return curr
+            
+            if (not uncle or uncle.isBlack()):
+                # check which case we have to use
+                if (uncleSide == childSide):  temp = self.__rotate__(curr, not childSide)
+
+                parent.setRed()
+                curr.setBlack()
+                temp = self.__rotate__(parent, uncleSide)
+                return temp
+
+    def checkValidRBTree(self) -> bool:    
+        '''
+        Checks the properties of the Red-Black tree:
+
+        \t1. A node is either red or black
+        \t2. The root is black⚫
+        \t3. If a node is red🔴, its children are black⚫
+        \t4. All paths from the root to the leaves(null nodes) have the same number of black⚫ nodes.
+        '''
+        #check property 2
+        if self.root.isRed(): return False
+
+        return self.__checkValidRBTree__(self.root) != -1
         
+    def __checkValidRBTree__(self, curr:TreeNode) -> int:
+        '''Recursive helper function for checkValidRBTree.
+
+        returns -1 if the test fails, otherwise returns count of black nodes to bottom.
+        '''
+        if curr == None: return 0
+
+        val = 0
+        if curr.isBlack(): val += 1
+
+        left:TreeNode  = curr.getLeft()
+        right:TreeNode = curr.getRight()
+
+        # check property 3
+        if curr.isRed()and (left and left.isRed() or right and right.isRed()) : return -1
+
+        # check property 4
+        leftVal  = self.__checkValidRBTree__(left)
+        rightVal = self.__checkValidRBTree__(right)
+
+        if leftVal == -1 or rightVal == -1: return -1
+
+        if leftVal == rightVal: return val + leftVal
+
     def fancyDisplay(self):
         '''Displays the tree in the following format: 
         (data, isRed(), level)'''
         self._fancyDisplay_(self.root,0)
 
     def _fancyDisplay_(self,root:TreeNode, level:int):
+        '''Recursive helper function for fancyDisplay'''
         if not root: return
-        if root != self.root: print(", ")
 
-        out = "( " + str(root.getData()) + ", " + str(root.isRed()) + ", " + str(level) + " )"
+        out = "( " + str(root.getData()) + ", " + root.displayColor() + ", " + str(level) + " )"
+
         print(out)
+
         for i in [False,True]:
             self._fancyDisplay_(root.getSide(i), level + 1)
 
+    def retrieve(self, key) -> []:
+        '''Searches for the value in the tree, returning the first list where element[0] evaluates equal to key.'''
+        return self.__retrieve__(self.root, key)
+        
+    def __retrieve__(self, curr:TreeNode, key):
+        '''Recursive helper function for retrieve.'''
+        if curr == None: return []
+        
+        curr_data = curr.getData()[0]
+
+        if key == curr_data: return curr.getData()
+
+        return self.__retrieve__(curr.getSide( curr_data < key ), key)
+
 if __name__ == "__main__":
     insertVals = []
-    for i in range(50):
+    for i in range(100):
         insertVals.append(random.randint(-100,100))
     
     print(insertVals, "\n")
@@ -229,6 +281,6 @@ if __name__ == "__main__":
     myTree = Tree()
     for i in insertVals:
         myTree.insert(i)
-        myTree.fancyDisplay()
-    
+        print(str(myTree.checkValidRBTree()))
+
     myTree.fancyDisplay()
