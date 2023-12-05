@@ -72,7 +72,7 @@ class TreeNode:
         else: return ("⚫")
 
     def display(self):
-        return "( " + str(self.data) + ", " + self.displayColor + ")"
+        return "( " + str(self.data) + ", " + self.displayColor() + ")"
 
 class Tree:
 
@@ -229,7 +229,7 @@ class Tree:
 
         if leftVal == rightVal: return val + leftVal
 
-    def display(self, root:TreeNode, order = "inorder"):
+    def display(self, order = "inorder"): 
         '''
         # Display
         Displays the nodes in order
@@ -239,6 +239,12 @@ class Tree:
         \t* "inorder" - default
         \t* "preorder"
         \t* "postorder"'''
+                
+        self.__display__(self.root, order)
+    
+
+    def __display__(self, root:TreeNode, order = "inorder"):
+
         if order == "inorder"  : self.__display_inorder__(root)
         if order == "preorder" : self.__display_preorder__(root)
         if order == "postorder": self.__display_postorder__(root)
@@ -247,13 +253,13 @@ class Tree:
         if root == None: return
 
         self.__display_inorder__(root.left)
-        root.display()
+        print(root.display())
         self.__display_inorder__(root.right)
 
     def __display_preorder__(self, root:TreeNode):
         if root == None: return
 
-        root.display()
+        print(root.display())
         self.__display_preorder__(root.left)
         self.__display_preorder__(root.right)
 
@@ -262,7 +268,7 @@ class Tree:
 
         self.__display_postorder__(root.left)
         self.__display_postorder__(root.right)
-        root.display()
+        print(root.display())
 
     def fancyDisplay(self):
         '''Displays the tree in the following format: 

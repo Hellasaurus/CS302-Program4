@@ -2,7 +2,7 @@
 Player.py
 '''
 from gathering import *
-import Tree
+from Tree import *
 
 class Player :
 
@@ -25,7 +25,7 @@ class Player :
     def addToDeck(self, card:Card, deck:Deck) :
         '''If a card is in the player's main collection, it is added to the deck'''
         # TODO add logic to check for counts - currently does not check how many of that card are in collection
-        if Collection.has(card):
+        if self.Collection.has(card):
             deck += card
             return True
         return False

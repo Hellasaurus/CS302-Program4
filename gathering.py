@@ -11,16 +11,23 @@ main hierarchy for Magic the gathering collection tracker
 import json
 
 class Card:
+    '''Class that contains card information.'''
 
     def __init__(self, name, type):
         self.name:str = name
-        self.type:str = type
+        self.type = type
 
     def display(self):
+        print("Name: " + self.name)
+        print("Types: " + str(self.type))
         pass
 
-    def getName(self):
-        pass
+    def __eq__(self, __value: object) -> bool:
+        return str(__value) == self.name
+
+    def getName(self)->str:
+        '''gets the card's name - used for making lists'''
+        return self.name
 
     def isCounted(self) -> bool: 
         '''Returns true if the card can only have a limited number of copies. used for determining legality'''
@@ -36,14 +43,18 @@ class CardGenerator:
     ### Source:
     https://mtgjson.com/'''
 
-    def __init__(self) -> None:
-        Standard_path = "StandardAtomic.json"
+    def __init__(self, path = "StandardAtomic.json") -> None:
+        Standard_path = path
 
-        Standard_data = json.load(open(Standard_path, 'r', encoding='utf8'))
+        file = open(Standard_path, 'r', encoding='utf8')
+
+        Standard_data = json.load(file)
 
         self.cardList = Standard_data['data']
         
-        self.cards = {}
+        self.cache = {}
+
+
         pass
 
     def getCard(self, name:str) -> object:
@@ -52,13 +63,13 @@ class CardGenerator:
         name: the name of a magic the gathering card
         ### Return:
         A card object with the appropriate attributes'''
-        if self.cards[name]: return self.cards[name]
+        if name in self.cache.keys(): return self.cache[name]
         else: 
             try:
-                myCard = Card(name, self.cardList[name]['types'])
-                self.cards[name] = myCard
+                myCard = Card(name, self.cardList[name][0]['types'])
+                self.cache[name] = myCard
             except:
-                print("Could not get card")
+                print("Could not get", name)
                 return None
         return myCard
 
@@ -84,12 +95,6 @@ MAX_LEGAL_SIZE = {
     "Limited"  : None
 }
 
-BAN_LIST = {
-    "Standard" : [],
-    "Commander": [],
-    "Limited"  : []
-}
-
 
 class Collection:
     '''A structure that associates cards'''
@@ -108,10 +113,12 @@ class Collection:
         self.cards.remove(card) 
 
     def addCard(self, card):
+        '''Add a card to the collection'''
         if type(card) is Card:
             self.cards.insert(card)
 
     def has(self, card) -> bool:
+        '''check if a card is in the collection'''
         return (card in self.cards)
     
     def __str__(self) -> str:
@@ -121,8 +128,8 @@ class Collection:
 class Deck (Collection):
     '''A species of Collection that enforces deckbuilding rules'''
 
-    def __init__(self,name:str, format):
-        super().__init__(self)
+    def __init__(self, name:str = "New Deck", format = "Standard"):
+        super().__init__()
         self.name:str = name
         self.format:str = format
 
@@ -136,34 +143,22 @@ class Deck (Collection):
         return self.name == deck.name
 
     def isLegal(self) -> bool:
+
         '''checks if the deck follows all deckbuilding requirements'''
         if not (self.minLegalSize < len(self.cards) < self.maxLegalSize):
             return False
-
-        duplicateCounter = {}
-
-        for i in [ c for c in super().cards if c.isCounted() ] :
-
-            if not duplicateCounter[i.getName()]: 
-                duplicateCounter[i.getName()] = 1
-            else:
-                duplicateCounter[i.getName()] += 1 
             
-        if max(list(duplicateCounter)) > self.maxCount:
+        if max( self.cards , key=list.count) > self.maxCount:
             return False
         
     def addCard(self, card):
         '''Checks:
-        * if adding the card would exceed the format limit
-        * if the card is on the banlist for the format
         ## Returns:
         True if card was added, else False'''
-        if card in BAN_LIST[format]:
-            return False
-        duplicates = len([c for c in super().cards if c.isCounted()])
-        if duplicates >= MAX_COUNT:
-            return False
-        Collection.addCard(card)
+        # TODO: Add logic to restrict card count
+        if type(card) != Card: return False
+
+        self.cards.append(card)
         return True
     
     def __str__(self) -> str:
@@ -176,7 +171,7 @@ class CommanderDeck(Deck):
     * Decks must be exactly 99 cards and can have no duplicate spellse
     * Decks must be within the identity of the commander'''
     def __init__(self, _commander:Card = None):
-        super().__init__(self, "Commander")
+        Deck.__init__("New Commander Deck" , "Commander")
 
         self.Commander:Card = _commander
         self.identity = None
