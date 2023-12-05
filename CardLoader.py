@@ -14,8 +14,9 @@ class CardLoader:
             newDeck = Deck()
             for line in myFile:
                 if line[0] == '\n': break
-                print(line[2:-1])
-                [newDeck.addCard(myGenerator.getCard(line[2:-1:])) for j in range(int(line[0]))]
+                
+                delimIndex = line.find(' ')
+                [newDeck.addCard(myGenerator.getCard(line[delimIndex + 1 :-1:])) for j in range(int(line[0:delimIndex]))]
             myFile.close()
             self.decks.append(newDeck)
         pass

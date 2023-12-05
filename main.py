@@ -15,7 +15,8 @@ if __name__ ==  "__main__":
     for i in loader.decks:
         playerOne.addDeck(i)
 
-    playerOne.decks.display()
+    mydecks = playerOne.decks.retrieve("New Deck")
 
+    [print(str(i)) for i in mydecks]
 
     pass

@@ -2,7 +2,7 @@
 # Daniel Melancon
 # CS 302-001
 # Program 4
-# Pytest testing filess
+# Pytest testing files
 
 from gathering import *
 
@@ -10,14 +10,42 @@ from gathering import *
 import pytest
 import json
 
-# Card:
+_Generator = CardGenerator()
 
+class TestGenerator:
+
+    def test_getCard(self):
+
+        _card = _Generator.getCard("Mountain")
+        assert _card  == "Mountain"
+        assert _card  == Card("Mountain", ['Land'])
+        assert _card.type == Card("Mountain", ['Land']).type
+
+        _card =  _Generator.getCard("Archangel of Wrath") 
+        assert _card == "Archangel of Wrath"
+        assert _card == Card("Archangel of Wrath", ['Creature'])
+        assert _card.type == Card("Archangel of Wrath", ['Creature']).type
+
+        _card = _Generator.getCard("Lightning Strike") 
+        assert _card == "Lightning Strike"
+        assert _card == Card("Lightning Strike", ['Instant'])
+        assert _card.type == Card("Lightning Strike", ['Instant']).type
+
+        _card = _Generator.getCard("Leyline Binding") 
+        assert _card == "Leyline Binding"
+        assert _card == Card("Leyline Binding", ['Enchantment'])
+        assert _card.type == Card("Leyline Binding", ['Enchantment']).type
+
+        assert _Generator.getCard("BADNAME") == None
+        assert _Generator.getFailures()[0] == "BADNAME"
+        
+        assert _Generator.getCard("BADNAME") != Card("BADNAME", [])
+        assert _Generator.getFailures()[1]   == "BADNAME"
+        
     
 class TestCard:
 
-    def test_display(self):
-        assert 1==1
-        pass
+
     def test__eq__(self):
         pass
     def test_getName(self)->str:
@@ -26,33 +54,6 @@ class TestCard:
         pass
     def test__str__(self) -> str:
         pass
-# CardGenerator:
-class test_Generator:
-
-    def test_getCard(self) -> object:
-        pass
-
-
-
-# FORMATS = ["Commander", "Standard", "Limited"]
-
-# MAX_COUNT = {
-#     "Standard" : 4 , 
-#     "Commander": 1 ,
-#     "Limited"  : None
-# }
-
-# MIN_LEGAL_SIZE = {
-#     "Standard" : 60 ,
-#     "Commander": 99 ,
-#     "Limited"  : 40
-# }
-
-# MAX_LEGAL_SIZE = {
-#     "Standard" : None ,
-#     "Commander": 99 ,
-#     "Limited"  : None
-# }
 
 
 # class test_Collection:
