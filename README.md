@@ -22,6 +22,9 @@ Many Magic: The Gathering players have large collections of cards, and it can be
     * Mono-Red Aggro    by ponumenume        -https://www.mtggoldfish.com/archetype/standard-mono-red-aggro-mid#paper
     * Boros Convoke     by mistia0902        -https://www.mtggoldfish.com/archetype/standard-boros-aggro-mid#paper
     * Gruul Aggro       by YOSHIJI MIYAKURA  -https://www.mtggoldfish.com/archetype/standard-gruul-dinosaurs-mid#paper
+* Commander Decklists:
+    * Mono Green Stomp  by Anonymous         -https://www.mtggoldfish.com/archetype/brawl-thrun-breaker-of-silence-mid#paper
+    * Mono White Soldiers by Anonymous       -https://www.mtggoldfish.com/archetype/brawl-myrel-shield-of-argive-mid#paper
  
 
 ### Card Data: 

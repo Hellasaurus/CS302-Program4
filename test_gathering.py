@@ -19,22 +19,22 @@ class TestGenerator:
         _card = _Generator.getCard("Mountain")
         assert _card  == "Mountain"
         assert _card  == Card("Mountain", ['Land'])
-        assert _card.type == Card("Mountain", ['Land']).type
+        assert _card._type_ == Card("Mountain", ['Land'])._type_
 
         _card =  _Generator.getCard("Archangel of Wrath") 
         assert _card == "Archangel of Wrath"
         assert _card == Card("Archangel of Wrath", ['Creature'])
-        assert _card.type == Card("Archangel of Wrath", ['Creature']).type
+        assert _card._type_ == Card("Archangel of Wrath", ['Creature'])._type_
 
         _card = _Generator.getCard("Lightning Strike") 
         assert _card == "Lightning Strike"
         assert _card == Card("Lightning Strike", ['Instant'])
-        assert _card.type == Card("Lightning Strike", ['Instant']).type
+        assert _card._type_ == Card("Lightning Strike", ['Instant'])._type_
 
         _card = _Generator.getCard("Leyline Binding") 
         assert _card == "Leyline Binding"
         assert _card == Card("Leyline Binding", ['Enchantment'])
-        assert _card.type == Card("Leyline Binding", ['Enchantment']).type
+        assert _card._type_ == Card("Leyline Binding", ['Enchantment'])._type_
 
         assert _Generator.getCard("BADNAME") == None
         assert _Generator.getFailures()[0] == "BADNAME"
@@ -65,9 +65,10 @@ class TestCard:
     def test__str__(self) -> str:
         _names = ["Mountain", "Archangel of Wrath", "Lightning Strike", "Leyline Binding"]
         _cards = [_Generator.getCard(i) for i in _names]
+        _output =["Mountain ['Land']", "Archangel of Wrath ['Creature']", "Lightning Strike ['Instant']", "Leyline Binding ['Enchantment']"]
 
         for i, card in enumerate(_cards):
-            assert _names[i] == str(card)
+            assert _output[i] == str(card)
 
 _Generator = CardGenerator()
 
@@ -83,12 +84,12 @@ class TestCollection:
         for i in cards:
             myCollection += _Generator.getCard(i)
         
-        assert str(cards) == str(myCollection)
+        assert str(cards) == str([card.getName() for card in myCollection.getCards()])
 
         for i in cards:
             myCollection -= _Generator.getCard(i)
         
-        assert str([]) == str(myCollection)
+        assert str([]) == str([card.getName() for card in myCollection.getCards()])
 
 
     def test_addCard(self):
@@ -105,7 +106,7 @@ class TestCollection:
             myCollection += _Generator.getCard(i)
 
         for i, c in enumerate(_cards):
-            assert myCollection.has(c) == _names[i] in _decklist
+            assert myCollection.has(c) == bool(_names[i] in _decklist)
 
 
     def test_remove(self):

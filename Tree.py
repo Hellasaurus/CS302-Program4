@@ -2,77 +2,77 @@
 class TreeNode:
 
     def __init__(self, a_data, is_red:bool = True) -> None:
-        self.data  = [a_data]
-        self.left  = None
-        self.right = None
-        self.red   = is_red
+        self._data_  = [a_data]
+        self._left_  = None
+        self._right_ = None
+        self._red_   = is_red
     
     # Node getters
     
     def getLeft(self): 
         '''Get left Node'''
-        return self.left 
+        return self._left_ 
     
     def getRight(self): 
         '''Get Right Node''' 
-        return self.right
+        return self._right_
     
     def getSide(self, right:bool):
         '''Gets a side depending on truth value of right
         ### Param: 
         * Right : True => Right'''
-        if right: return self.right
-        return self.left
+        if right: return self._right_
+        return self._left_
     
     def getData(self)  : 
         '''Get Data''' 
-        return self.data    
+        return self._data_    
     
     def isRed(self) -> bool: 
         '''Gets Node color \n @output :\n \tTrue = red, \n \tFalse = Black''' 
-        return self.red
+        return self._red_
     
     def isBlack(self) -> bool:
         '''Gets Node color \n @output :\n \tTrue = black, \n \tFalse = Red'''
-        return not self.red
+        return not self._red_
     # Node setters
     
     def setLeft(self, val):
         '''Sets the value of the left node'''
-        self.left  = val 
+        self._left_  = val 
     
     def setRight(self, val):
         '''Sets the value of the right node'''
-        self.right = val
+        self._right_ = val
     
     def setSide(self, val, right:bool):
         '''Sets a side depending on bool param
         ### Params: 
         * val: node to insert
         * right: True => Right'''
-        if right: self.right = val
-        else: self.left = val
+        if right: self._right_ = val
+        else: self._left_ = val
 
     def setData(self, val):
         '''Sets the node's data'''
-        self.data  = val 
+        self._data_  = val 
     
     def setRed(self, val:bool = True):
         '''Sets the node's parity value'''
-        self.red   = val  
+        self._red_   = val  
     
     def setBlack(self, val:bool = True):
         '''Sets the node's parity value'''
-        self.red   = not val
+        self._red_   = not val
 
     # Display functions
     def displayColor(self):
         '''prints the color of the current node'''
-        if self.red: return ("🔴") ;
+        if self._red_: return ("🔴") ;
         else: return ("⚫")
 
     def display(self):
-        return "( " + str(self.data) + ", " + self.displayColor() + ")"
+        return "( " + str(self._data_) + ", " + self.displayColor() + ")"
 
 class Tree:
 
@@ -88,7 +88,7 @@ class Tree:
     '''
     
     def __init__(self) -> None:
-        self.root = None
+        self.__root__ = None
 
     def insert(self, in_data):
         '''
@@ -97,11 +97,11 @@ class Tree:
         ### Params:
         \tin_data -\tdata to add, must be comparable to other data in tree.
         '''
-        out = self.__insert__(in_data, self.root, None)
+        out = self.__insert__(in_data, self.__root__, None)
 
         if out:
             out.setBlack()
-            self.root = out
+            self.__root__ = out
 
     def __rotate__(self, root:TreeNode, side:bool) -> TreeNode:
         '''
@@ -119,7 +119,7 @@ class Tree:
         child.setSide(root, side)
         root.setSide(temp, not side)
 
-        if root == self.root: self.root = child
+        if root == self.__root__: self.__root__ = child
 
         return child
 
@@ -201,9 +201,9 @@ class Tree:
         \t4. All paths from the root to the leaves(null nodes) have the same number of black⚫ nodes.
         '''
         #check property 2
-        if self.root.isRed(): return False
+        if self.__root__.isRed(): return False
 
-        return self.__checkValidRBTree__(self.root) != -1
+        return self.__checkValidRBTree__(self.__root__) != -1
         
     def __checkValidRBTree__(self, curr:TreeNode) -> int:
         '''Recursive helper function for checkValidRBTree.
@@ -240,7 +240,7 @@ class Tree:
         \t* "preorder"
         \t* "postorder"'''
                 
-        self.__display__(self.root, order)
+        self.__display__(self.__root__, order)
     
 
     def __display__(self, root:TreeNode, order = "inorder"):
@@ -252,28 +252,28 @@ class Tree:
     def __display_inorder__(self, root:TreeNode):
         if root == None: return
 
-        self.__display_inorder__(root.left)
+        self.__display_inorder__(root._left_)
         print(root.display())
-        self.__display_inorder__(root.right)
+        self.__display_inorder__(root._right_)
 
     def __display_preorder__(self, root:TreeNode):
         if root == None: return
 
         print(root.display())
-        self.__display_preorder__(root.left)
-        self.__display_preorder__(root.right)
+        self.__display_preorder__(root._left_)
+        self.__display_preorder__(root._right_)
 
     def __display_postorder__(self, root:TreeNode):
         if root == None: return
 
-        self.__display_postorder__(root.left)
-        self.__display_postorder__(root.right)
+        self.__display_postorder__(root._left_)
+        self.__display_postorder__(root._right_)
         print(root.display())
 
     def fancyDisplay(self):
         '''Displays the tree in the following format: 
         (data, isRed(), level)'''
-        self.__fancyDisplay__(self.root,0)
+        self.__fancyDisplay__(self.__root__,0)
 
     def __fancyDisplay__(self,root:TreeNode, level:int):
         '''Recursive helper function for fancyDisplay'''
@@ -288,7 +288,7 @@ class Tree:
 
     def retrieve(self, key) -> []:
         '''Searches for the value in the tree, returning the first list where element[0] evaluates equal to key.'''
-        return self.__retrieve__(self.root, key)
+        return self.__retrieve__(self.__root__, key)
         
     def __retrieve__(self, curr:TreeNode, key):
         '''Recursive helper function for retrieve.'''

@@ -13,26 +13,16 @@ class Interface:
     '''User interface class. State is using self.state and self.menuitems. Setting the state to a string navigates to that page in the menu, setting the state to a function calls that funciton.'''
 
     def __init__(self) -> None:
-        self.headerHeight = 1
-        self.footerHeight = 3
-        self.borderChar = '='
-
         #initialize player
         self.player = Player()
-        loader = CardLoader("Decks")
-        decks = loader.getDecks()
-        [self.player.addDeck(i) for i in decks]
-        for deck in decks:
-            for card in deck.getCards():
-                self.player.gainCard(card)
-
+        
         self.state = "Main Menu"
 
         self.menuItems = { 
-            "Main Menu" : [("Player Menu","Player Menu"), ("View Decks", "View Decks"), ("Create Deck","Create Deck"), ("View Collection", self._collectionView_), ("Quit", None)], 
+            "Main Menu" : [("Player Menu","Player Menu"), ("View Decks", "View Decks"), ("Import Decks", "Import Decks"), ("View Collection", self._collectionView_), ("Quit", None)], 
             "Player Menu": [("Add Gems", self._addGems_), ("Add Experience", self._addXP_), ("Purchase Cards", self._purchaseCards_), ("Add a Card by Name", self._addByName_),("Back", "Main Menu"), ("Quit", None)],
-            "View Decks" : [("Back", "Main Menu"), ("Quit", None)],
-            "Create Deck" : [("Back", "Main Menu"), ("Quit", None)],
+            "Import Decks" : [("Import All Decks", self._importAll),("Back", "Main Menu")],
+            "View Decks" : [("Back", "Main Menu")],
             }
         
         self.forSale = [
@@ -50,7 +40,11 @@ class Interface:
         count = 0
         while count < 1000 and self.state:
             self.clear()
-            self._makeScreen()
+            try:
+                self._makeScreen()
+            except KeyError:
+                self.state = "Main Menu"
+                print ("Invalid state, returned to main menu")
             count += 1
         self.clear()
         print("Good Bye!")
@@ -108,20 +102,22 @@ class Interface:
         self.state = menuItems[input - 1][1]
 
     def _addGems_(self):
+        '''adds gems to the player's account'''
         self.player.getGems(self.__getIntInput__(0,100000, "Add from 0 to 100000 gems here."))
         self.state = "Player Menu"
     
     def _addXP_(self):
+        '''adds xp to the player's account'''
         self.player.getXP(self.__getIntInput__(0,1000, "Add from 0 to 1000 experience points here."))
         self.state = "Player Menu"
     
     def _addByName_(self):
         '''Adds a card to the collection by name'''
         info = '''
-        Type the name of a card to add it to the collection
+    Type the name of a card to add it to the collection
         **NOTE: Card names must be typed Exactly, Case Sensitive!
-        \tOnly cards legal in Standard as of 12/4/2023 will work
-        \tSome valid card names can be found in the included decklists.
+        Only cards legal in Standard as of 12/4/2023 will work
+        Some valid card names can be found in the included decklists.
         
         type '0' to go back'''
         print(info, '-' * self._getWidth_(),sep='\n')
@@ -136,13 +132,9 @@ class Interface:
         else:
             print("Invalid entry, please try again.")
         input("Press [Enter] to continue.")
-
-
-
-
-    
+ 
     def _purchaseCards_(self):
-
+        '''Presents the user with some cards available for purchase.'''
         for num, (name, price ) in enumerate(self.forSale, 1):
             optionLen = 3 + len(name)
             dots = min(40, self._getWidth_()) - optionLen - 10
@@ -163,9 +155,10 @@ class Interface:
         else: 
             print("Insufficient funds")
         
-        input("Continue...")
+        input("Press [Enter] to continue.")
 
     def _collectionView_(self):
+        '''Views the collection'''
         self._listAsPages_(self.player.displayCollection(), "Main Menu")
 
     def _listAsPages_(self, book, backState = "Main Menu"):
@@ -179,7 +172,7 @@ class Interface:
             return
         
         size = len(book)
-        perPage = self._getHeight() - 8
+        perPage = self._getHeight() - 6
         pages = []
 
         i = 0
@@ -203,6 +196,29 @@ class Interface:
             if userSelection == 0 : 
                 done = True
                 self.state = backState
+    
+    def _importAll(self):
+        '''Imports all the decks from Commander and Decks files. '''
+        info = '''
+    Here, you may import decks from external text files.
+    * Note: Files must follow the following formatting guidelines:
+        * First line contains the name of the deck
+        * Lines consist of a count, followed by a space, followed by the name of the card
+            * Card names are Case-sensitive and whitespace sensitive.'''
+        print(info)
+        print("=" * self._getWidth_())
+        userSelection = self.__getIntInput__(0, 1, "Press 1 to import all decks, or 0 to go back.")
+        if userSelection == 0:
+            self.state = "Import Decks"
+            return
+
+        loader = CardLoader("Decks")
+        decks = loader.getDecks()
+        [self.player.addDeck(i) for i in decks]
+        for deck in decks:
+            for card in deck.getCards():
+                self.player.gainCard(card)
+
 
 
 
