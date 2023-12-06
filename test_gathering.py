@@ -113,20 +113,15 @@ class TestCollection:
         pass
     
 
-# class TestDeck:
-    
-#     def test__lt__(self, deck) -> bool:
-#         pass
+class TestDeck:
             
-#     def test__eq__(self, deck) -> bool:
-#         pass
-#     def test_isLegal(self) -> bool:
-#         pass        
-#     def test_addCard(self, card):
-#         pass    
-#     def test__str__(self) -> str:
-#         pass
-# # Commander Class 
+    def test_isLegal(self):
+        pass        
+    def test_addCard(self):
+        pass    
+    def test__str__(self):
+        pass
+# Commander Class 
 
 # class TestCommander:
 

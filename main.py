@@ -1,15 +1,11 @@
-from Player import *
-from Tree import *
-from gathering import *
-from CardLoader import CardLoader
 
-
+from Interface import Interface
 
 
 if __name__ ==  "__main__":
 
-    loader = CardLoader("Decks")
+    session = Interface()
 
-    playerOne:Player = Player()
-
+    session.run()
+    
     pass

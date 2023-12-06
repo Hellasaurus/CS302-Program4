@@ -32,7 +32,7 @@ class Card:
         return 'Land' not in self.type
     
     def __str__(self) -> str:
-        return self.name
+        return self.name + " "+ str(self.type)
 
 class CardGenerator:
     '''# Card Generator
@@ -156,12 +156,8 @@ class Deck (Collection):
     
     def __lt__(self, deck) -> bool: 
         return self.name < deck.name
-    def __lt__(self, name:str) -> bool: 
-        return self.name < name
     def __eq__(self, deck) -> bool:
         return self.name == deck.name
-    def __eq__(self, name:str) -> bool:
-        return self.name == name
 
     def isLegal(self) -> bool:
 

@@ -5,8 +5,9 @@
 # User interface for Project 4 
 
 import os
-import argparse
+from CardLoader import CardLoader
 from Player import Player
+from gathering import *
 
 class Interface:
     '''User interface class. State is using self.state and self.menuitems. Setting the state to a string navigates to that page in the menu, setting the state to a function calls that funciton.'''
@@ -16,17 +17,34 @@ class Interface:
         self.footerHeight = 3
         self.borderChar = '='
 
+        #initialize player
         self.player = Player()
+        loader = CardLoader("Decks")
+        decks = loader.getDecks()
+        [self.player.addDeck(i) for i in decks]
+        for deck in decks:
+            for card in deck.getCards():
+                self.player.gainCard(card)
 
         self.state = "Main Menu"
 
         self.menuItems = { 
-            "Main Menu" : [("Player Menu","Player Menu"), ("View Decks", "View Decks"), ("Create Deck","Create Deck"), ("Quit", None)], 
-            "Player Menu": [("Add Gems", self._addGems), ("Add Experience", self._addXP), ("Back", "Main Menu"), ("Quit", None)],
+            "Main Menu" : [("Player Menu","Player Menu"), ("View Decks", "View Decks"), ("Create Deck","Create Deck"), ("View Collection", self._collectionView_), ("Quit", None)], 
+            "Player Menu": [("Add Gems", self._addGems_), ("Add Experience", self._addXP_), ("Purchase Cards", self._purchaseCards_), ("Add a Card by Name", self._addByName_),("Back", "Main Menu"), ("Quit", None)],
             "View Decks" : [("Back", "Main Menu"), ("Quit", None)],
             "Create Deck" : [("Back", "Main Menu"), ("Quit", None)],
             }
-        pass
+        
+        self.forSale = [
+            ("Lightning Strike", 100),
+            ("Memory Deluge", 200),
+            ("Blossoming Tortoise", 500),
+            ("The Wandering Emperor", 1000),
+            ("Captivating Cave", 250)
+        ]
+
+        self.generator = CardGenerator()
+        
 
     def run(self):
         count = 0
@@ -42,7 +60,7 @@ class Interface:
         '''clear the screen''' 
         os.system('cls||clear')
 
-    def _getWidth(self): 
+    def _getWidth_(self): 
         '''Gets the width of the terminal''' 
         return os.get_terminal_size().columns
     
@@ -54,20 +72,15 @@ class Interface:
         '''Prompts the user for a clamped integer input'''
         done = False
         while not done:
-            try: userInput = int(input(msg))
+            try: 
+                userInput = int(input(msg))
+                if min <= userInput and userInput <= max: done = True
             except: pass
-
-            if min <= userInput and userInput <= max: done = True
-            else: print("Invalid choice, please try again") 
+            if not done: print("Invalid choice, please try again") 
         return userInput
-
-
     
     def _makeScreen(self):
         '''Draws the screen'''
-        line = 0
-
-        line += self.headerHeight
         self._makeHeader()
 
         if type(self.state) == str :
@@ -79,29 +92,118 @@ class Interface:
     def _makeHeader(self):
         '''Creates a header'''
         info = self.player.playerInfo()
-        width = self._getWidth()
-        str1 = "Active player: " + info[0] + "     " + info[1] + " XP     " + info[2] + "Gems"
+        width = self._getWidth_()
+        str1 = "Active player: " + info[0] + "     " + info[1] + " XP     " + info[2] + " Gems💎"
         print(str1[:width])
         print("=" * width)
 
     def _menu(self, state):
         '''Draws the menu and prompts the user for input, using state and self.menuItems to control options'''
         menuItems = self.menuItems[state]
-        for num, (name, _ )  in enumerate(menuItems):
-            print(str(num + 1) + '.', name)
+        for num, (name, _ )  in enumerate(menuItems, 1):
+            print(str(num) + '.', name)
 
         input = self.__getIntInput__(1, len(menuItems))
 
         self.state = menuItems[input - 1][1]
-        pass
 
-    def _addGems(self):
+    def _addGems_(self):
         self.player.getGems(self.__getIntInput__(0,100000, "Add from 0 to 100000 gems here."))
         self.state = "Player Menu"
     
-    def _addXP(self):
+    def _addXP_(self):
         self.player.getXP(self.__getIntInput__(0,1000, "Add from 0 to 1000 experience points here."))
         self.state = "Player Menu"
+    
+    def _addByName_(self):
+        '''Adds a card to the collection by name'''
+        info = '''
+        Type the name of a card to add it to the collection
+        **NOTE: Card names must be typed Exactly, Case Sensitive!
+        \tOnly cards legal in Standard as of 12/4/2023 will work
+        \tSome valid card names can be found in the included decklists.
+        
+        type '0' to go back'''
+        print(info, '-' * self._getWidth_(),sep='\n')
+        userInput = input("Enter a valid card name:")
+        if userInput in ["0", "b", "Back"]:
+            self.state = "Main Menu"
+            return
+        card = self.generator.getCard(userInput)
+        if card:
+            self.player.gainCard(card)
+            print(userInput, "added to the collection!")
+        else:
+            print("Invalid entry, please try again.")
+        input("Press [Enter] to continue.")
+
+
+
+
+    
+    def _purchaseCards_(self):
+
+        for num, (name, price ) in enumerate(self.forSale, 1):
+            optionLen = 3 + len(name)
+            dots = min(40, self._getWidth_()) - optionLen - 10
+            print(str(num) + ".", name, "." * dots, price, "Gems")
+        
+        size = 1 + len(self.forSale)
+        print(str(size) + ". Back")
+
+        userInput = self.__getIntInput__(1,size)
+
+        if userInput == size :
+            self.state = "Player Menu"
+            return
+        
+        userInput -= 1
+        if self.player.purchaseCard(self.forSale[userInput][1], self.generator.getCard(self.forSale[userInput][0])):
+            print(self.forSale[userInput][0], "purchased for", self.forSale[userInput][1], "gems" )
+        else: 
+            print("Insufficient funds")
+        
+        input("Continue...")
+
+    def _collectionView_(self):
+        self._listAsPages_(self.player.displayCollection(), "Main Menu")
+
+    def _listAsPages_(self, book, backState = "Main Menu"):
+        '''Displays a list of strings in pages
+        ## Params:
+        * book - a list of strings that will be split up into pages
+        * backState - The value of self.state after the user exits. '''
+        if not book:
+            input("Nothing to display at this time... Press [Enter] to continue.")
+            self.state = backState
+            return
+        
+        size = len(book)
+        perPage = self._getHeight() - 8
+        pages = []
+
+        i = 0
+        while i < size:
+            page = []
+            for j in range(perPage):
+                try : page.append(book[i + j])
+                except: break
+            pages.append(page)
+            i += perPage
+        
+        done = False
+        userSelection = 1
+        end = len(pages)
+        while not done:
+            self.clear()
+            [print(i) for i in pages[userSelection-1]]
+            print("Page", userSelection, "of", str(end))
+            msg = "Select a page, or 0 to go back."
+            userSelection = self.__getIntInput__(0 ,end, msg)
+            if userSelection == 0 : 
+                done = True
+                self.state = backState
+
 
 
 if __name__ == '__main__':

@@ -4,6 +4,8 @@ from gathering import *
 import os
 
 class CardLoader:
+    '''Utility class that loads any decklists in the Decks directory'''
+
     def __init__(self, path:str) -> None:
         files = [f for f in os.listdir(os.fsencode(path))]
         self.decks:Deck = []
@@ -11,16 +13,20 @@ class CardLoader:
 
         for i in files: 
             myFile = open(b'Decks/' + i)
-            newDeck = Deck()
-            for line in myFile:
+            data = list(myFile)
+            newDeck = Deck(str(data[0]))
+            for line in data[1::]:
                 if line[0] == '\n': break
                 
                 delimIndex = line.find(' ')
                 name  = myGenerator.getCard(line[delimIndex + 1 :-1:])
                 count = int(line[0:delimIndex])
-                [newDeck.addCard(name) for j in range(count)]
+                [newDeck.addCard(name) for _ in range(count)]
 
             myFile.close()
             self.decks.append(newDeck)
         pass
+
+    def getDecks(self):
+        return self.decks
 

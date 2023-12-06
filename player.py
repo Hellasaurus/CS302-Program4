@@ -10,8 +10,12 @@ class Player :
 
         while not name: 
             name = input("Enter your name: ")
-            if len(name) >= 20: print("Names must be under 20 characters.")
-            elif len(name) < 3: print("Names must be at least 3 characters")
+            if len(name) >= 20:
+                print("Names must be under 20 characters.")
+                name = None
+            elif len(name) < 3:
+                print("Names must be at least 3 characters")
+                name = None
 
         self.name = name
         self.XP:int = 0
@@ -38,9 +42,6 @@ class Player :
             return True
         return False
     
-    def __iadd__(self, deck:Deck):
-        self.addDeck(deck)
-
     def addDeck(self, deck:Deck):
         '''adds a Deck to the collection'''
         self.decks.insert(deck)
@@ -63,9 +64,12 @@ class Player :
     def playerInfo(self):
         Attributes = [self.name, self.XP, self.gems]
         return [str(x) for x in Attributes]
+    
+    def displayCollection(self):
+        return[str(card)for card in self.collection.getCards()]
         
     
-    def purchaseCard(self, cost, **goods:Card ) -> bool:
+    def purchaseCard(self, cost, *goods:Card ) -> bool:
         '''attempts to purchase cards
         ### Params:
         * cost - the amount of gems to pay
