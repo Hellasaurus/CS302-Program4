@@ -12,11 +12,4 @@ if __name__ ==  "__main__":
 
     playerOne:Player = Player()
 
-    for i in loader.decks:
-        playerOne.addDeck(i)
-
-    mydecks = playerOne.decks.retrieve("New Deck")
-
-    [print(str(i)) for i in mydecks]
-
     pass

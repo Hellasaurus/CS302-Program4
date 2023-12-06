@@ -29,7 +29,7 @@ class Card:
 
     def isCounted(self) -> bool: 
         '''Returns true if the card can only have a limited number of copies. used for determining legality'''
-        return 'land' in self.type
+        return 'Land' not in self.type
     
     def __str__(self) -> str:
         return self.name
@@ -112,16 +112,27 @@ class Collection:
         '''Fetches the list containing the collection's cards'''
         return self.cards
     
-    def __iadd__(self,card:Card):
+    def __iadd__(self, card:Card):
         self.addCard(card)
+        return self
     
     def __isub__(self, card:Card):
-        self.cards.remove(card) 
+        self.cards.remove(card)
+        return self
 
     def addCard(self, card):
         '''Add a card to the collection'''
         if type(card) is Card:
-            self.cards.insert(card)
+            self.cards.append(card)
+    
+    def remove(self, card):
+        '''Reomve a card from the collection'''
+        for i, c in enumerate(self.cards):
+            if c == card:
+                self.cards.pop(i)
+                return True
+        return False
+
 
     def has(self, card) -> bool:
         '''check if a card is in the collection'''

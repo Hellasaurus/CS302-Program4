@@ -43,37 +43,77 @@ class TestGenerator:
         assert _Generator.getFailures()[1]   == "BADNAME"
         
     
+_Generator = CardGenerator()
+
 class TestCard:
 
-
-    def test__eq__(self):
-        pass
     def test_getName(self)->str:
-        pass
-    def test_isCounted(self) -> bool: 
-        pass
+        _names = ["Mountain", "Archangel of Wrath", "Lightning Strike", "Leyline Binding"]
+        _cards = [_Generator.getCard(i) for i in _names]
+
+        for i, card in enumerate(_cards):
+            assert _names[i] == card.getName()
+
+    def test_isCounted(self) -> bool:
+        _names = ["Mountain", "Archangel of Wrath", "Lightning Strike", "Leyline Binding"]
+        _passV = [False, True, True, True]
+        _cards = [_Generator.getCard(i) for i in _names]
+
+        for i, card in enumerate(_cards):
+            assert _passV[i] == card.isCounted()
+
     def test__str__(self) -> str:
+        _names = ["Mountain", "Archangel of Wrath", "Lightning Strike", "Leyline Binding"]
+        _cards = [_Generator.getCard(i) for i in _names]
+
+        for i, card in enumerate(_cards):
+            assert _names[i] == str(card)
+
+_Generator = CardGenerator()
+
+
+class TestCollection:
+
+    def test_getCards(self):
+        pass    
+    def test__iadd__isub__(self):
+        cards = ['Bloodthirsty Adversary', 'Bloodthirsty Adversary', 'Bloodthirsty Adversary', 'Bloodthirsty Adversary', 'Charming Scoundrel', 'Charming Scoundrel', 'Charming Scoundrel', 'Charming Scoundrel', 'Feldon, Ronom Excavator', 'Goddric, Cloaked Reveler', 'Goddric, Cloaked Reveler', 'Goddric, Cloaked Reveler', 'Kumano Faces Kakkazan // Etching of Kumano', 'Kumano Faces Kakkazan // Etching of Kumano', 'Kumano Faces Kakkazan // Etching of Kumano', 'Kumano Faces Kakkazan // Etching of Kumano', 'Lightning Strike', 'Lightning Strike', 'Lightning Strike', 'Lightning Strike', "Mishra's Foundry", "Mishra's Foundry", "Mishra's Foundry", 'Monastery Swiftspear', 'Monastery Swiftspear', 'Monastery Swiftspear', 'Monastery Swiftspear', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', "Nahiri's Warcrafting", "Nahiri's Warcrafting", 'Play with Fire', 'Play with Fire', 'Play with Fire', 'Play with Fire', 'Shivan Devastator', 'Sokenzan, Crucible of Defiance', 'Sokenzan, Crucible of Defiance', 'Squee, Dubious Monarch', 'Squee, Dubious Monarch', 'Squee, Dubious Monarch', 'Witchstalker Frenzy', 'Witchstalker Frenzy', 'Witchstalker Frenzy']
+        myCollection = Collection()
+
+        for i in cards:
+            myCollection += _Generator.getCard(i)
+        
+        assert str(cards) == str(myCollection)
+
+        for i in cards:
+            myCollection -= _Generator.getCard(i)
+        
+        assert str([]) == str(myCollection)
+
+
+    def test_addCard(self):
         pass
 
+    def test_has(self):
+        _names = ["Mountain", "Archangel of Wrath", "Lightning Strike", "Leyline Binding"]
+        _cards = [_Generator.getCard(i) for i in _names]
 
-# class test_Collection:
+        _decklist = ['Bloodthirsty Adversary', 'Bloodthirsty Adversary', 'Bloodthirsty Adversary', 'Bloodthirsty Adversary', 'Charming Scoundrel', 'Charming Scoundrel', 'Charming Scoundrel', 'Charming Scoundrel', 'Feldon, Ronom Excavator', 'Goddric, Cloaked Reveler', 'Goddric, Cloaked Reveler', 'Goddric, Cloaked Reveler', 'Kumano Faces Kakkazan // Etching of Kumano', 'Kumano Faces Kakkazan // Etching of Kumano', 'Kumano Faces Kakkazan // Etching of Kumano', 'Kumano Faces Kakkazan // Etching of Kumano', 'Lightning Strike', 'Lightning Strike', 'Lightning Strike', 'Lightning Strike', "Mishra's Foundry", "Mishra's Foundry", "Mishra's Foundry", 'Monastery Swiftspear', 'Monastery Swiftspear', 'Monastery Swiftspear', 'Monastery Swiftspear', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', "Nahiri's Warcrafting", "Nahiri's Warcrafting", 'Play with Fire', 'Play with Fire', 'Play with Fire', 'Play with Fire', 'Shivan Devastator', 'Sokenzan, Crucible of Defiance', 'Sokenzan, Crucible of Defiance', 'Squee, Dubious Monarch', 'Squee, Dubious Monarch', 'Squee, Dubious Monarch', 'Witchstalker Frenzy', 'Witchstalker Frenzy', 'Witchstalker Frenzy']
+        myCollection = Collection()
 
-#     def test_getCards(self):
-#         pass    
-#     def test__iadd__(self,card:Card):
-#         pass    
-#     def test__isub__(self, card:Card):
-#         pass
-#     def test_addCard(self, card):
-#         pass
+        for i in _decklist:
+            myCollection += _Generator.getCard(i)
 
-#     def test_has(self, card) -> bool:
-#         pass
-#     def test__str__(self) -> str:
-#         pass
+        for i, c in enumerate(_cards):
+            assert myCollection.has(c) == _names[i] in _decklist
+
+
+    def test_remove(self):
+        
+        pass
     
 
-# class test_Deck:
+# class TestDeck:
     
 #     def test__lt__(self, deck) -> bool:
 #         pass
@@ -88,7 +128,7 @@ class TestCard:
 #         pass
 # # Commander Class 
 
-# class test_Commander:
+# class TestCommander:
 
 #     def test_isLegal(self) -> bool:
 #         pass

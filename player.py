@@ -6,7 +6,14 @@ from Tree import *
 
 class Player :
 
-    def __init__(self) -> None:
+    def __init__(self, name:str = None) -> None:
+
+        while not name: 
+            name = input("Enter your name: ")
+            if len(name) >= 20: print("Names must be under 20 characters.")
+            elif len(name) < 3: print("Names must be at least 3 characters")
+
+        self.name = name
         self.XP:int = 0
 
         self.gems:int = 0
@@ -14,6 +21,7 @@ class Player :
 
         self.decks:Tree = Tree()
         self.activeDeck:int = None
+
         
     def __iadd__(self, card:Card):
         self.gainCard(card)
@@ -46,6 +54,16 @@ class Player :
         '''Adds Gems to the player's account
         Only adds gems to the account; fails on negative count'''
         if count > 0 : self.gems += count
+
+    def getXP(self, count:int):
+        '''Adds Experience to the player's account
+        TODO: add leveling system.'''
+        if count > 0 : self.XP += count
+    
+    def playerInfo(self):
+        Attributes = [self.name, self.XP, self.gems]
+        return [str(x) for x in Attributes]
+        
     
     def purchaseCard(self, cost, **goods:Card ) -> bool:
         '''attempts to purchase cards
