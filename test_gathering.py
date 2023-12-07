@@ -124,11 +124,11 @@ class TestDeck:
         pass
 # Commander Class 
 
-# class TestCommander:
+class TestCommander:
 
-#     def test_isLegal(self) -> bool:
-#         pass
-#     def test_setCommander(self, card:Card):
-#         pass
-#     def test__str__(self) -> str:
-#         pass
+    def test_isLegal(self) -> bool:
+         pass
+    def test_setCommander(self, card:Card):
+         pass
+    def test__str__(self) -> str:
+         pass
